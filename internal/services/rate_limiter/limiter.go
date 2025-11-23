@@ -8,8 +8,8 @@ const (
 )
 
 type RateLimiter struct {
-	limits limitsStorage
-	mu     sync.Mutex
+	options *LimiterOptions
+	mu      sync.Mutex
 }
 
 type limitsStorage interface {
@@ -19,26 +19,28 @@ type limitsStorage interface {
 
 type LimiterOptions struct {
 	Storage limitsStorage
+	MaxReq  int
+	Window  int
 }
 
 func NewLimiterOptions() *LimiterOptions {
-	return &LimiterOptions{Storage: NewFreecacheLimitsStorage()}
+	return &LimiterOptions{Storage: NewFreecacheLimitsStorage(), MaxReq: baseLimit, Window: baseWindow}
 }
 
 func (r *RateLimiter) Allow(discriminator string) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	counter, ok := r.limits.GetLimitCounter(discriminator)
+	counter, ok := r.options.Storage.GetLimitCounter(discriminator)
 	if ok {
-		if counter > baseLimit {
+		if counter >= r.options.MaxReq {
 			return false
 		}
 	}
-	r.limits.SetLimitCounter(discriminator, counter+1, baseWindow)
+	r.options.Storage.SetLimitCounter(discriminator, counter+1, r.options.Window)
 	return true
 }
 
 func NewRateLimiter(options *LimiterOptions) *RateLimiter {
-	return &RateLimiter{limits: options.Storage}
+	return &RateLimiter{options: options}
 }
