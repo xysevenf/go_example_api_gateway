@@ -25,6 +25,13 @@ func (a *AuthService) Authorize(token string) (jwt.Claims, error) {
 	}
 }
 
+func (a *AuthService) IssueJWT(userID int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	return token.SignedString([]byte(a.secret))
+}
+
 func NewAuthService(secret string) *AuthService {
 	return &AuthService{secret: secret}
 }
