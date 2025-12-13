@@ -3,12 +3,16 @@ package config
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
+	Server struct {
+		ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT:10"`
+	}
 	Auth struct {
 		JwtSignToken string `env:"JWT_SIGN_TOKEN"`
 	}
