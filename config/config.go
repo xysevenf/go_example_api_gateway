@@ -10,8 +10,10 @@ import (
 )
 
 type Config struct {
-	Server struct {
-		ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT:10"`
+	Env     string `env:"ENV" envDefault:"dev"`
+	AppName string `env:"APP_NAME" envDefault:"api_gateway"`
+	Server  struct {
+		ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"10s"`
 	}
 	Auth struct {
 		JwtSignToken string `env:"JWT_SIGN_TOKEN"`
